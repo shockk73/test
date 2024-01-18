@@ -3,21 +3,16 @@ name: Hello World Comment
 on:
   pull_request:
     types: [opened]
-
 jobs:
-  hello_world_comment:
+  comment:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Comment on PR
-        run: |
-          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          COMMENT="Hello, world!"
-          
-          curl -sSL -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -X POST -d "{\"body\":\"$COMMENT\"}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues/${PR_NUMBER}/comments"
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '👋 Thanks for reporting!'
+            })
